@@ -1,28 +1,51 @@
-# zabbix-custom-parameters
-A collection of Linux shell scripts for custom Zabbix agent parameters, providing extended system monitoring capabilities.
- # Zabbix Custom Parameters for Linux
+Zabbix Custom Parameters
 
-This repository contains a collection of Linux shell scripts designed to be used as custom Zabbix agent parameters.  
-Each script provides a specific system metric that can be monitored through Zabbix using `UserParameter` definitions.
+This repository contains custom user parameters for Zabbix Agent, providing extended monitoring capabilities for battery level, CPU temperature, fan speed, and power supply status.
+Each script returns clean numeric output, making it fully compatible with Zabbix item processing.
 
----
+1. battery_percentage.sh
+Extracts the laptop battery percentage using ACPI.
+Example output: 92
 
-## 📌 Included Scripts
+2. cpu_temp.sh
+Reads CPU temperature from the sensors command.
+Example output: 67
 
-### 1. cpu_usage.sh
-Returns the current total CPU usage percentage.
 
-### 2. disk_free.sh
-Outputs available disk space for a specified filesystem.
+3. fan_speed.sh
+Returns fan speed in RPM from hardware sensors.
+Example output: 1997
 
-### 3. service_status.sh
-Checks whether a given systemd service is running.
+4. power_supply_status.sh
+Checks AC power status (plugged in or running on battery).
+Example output:
+1   # AC power online
+0   # AC power offline
 
-### 4. network_latency.sh
-Measures network latency to a specified host using ICMP ping.
+⚙️ Zabbix Agent Configuration
+The file zabbix_agentd.d/custom_parameters.conf contains user parameters:
 
----
+UserParameter=battery.percentage,/path/to/scripts/battery_percentage.sh
+UserParameter=cpu.temp,/path/to/scripts/cpu_temp.sh
+UserParameter=fan.speed,/path/to/scripts/fan_speed.sh
+UserParameter=power.supply.status,/path/to/scripts/power_supply_status.sh
 
-## 📂 How to Use
+Replace /path/to/scripts/ with the actual directory path.
+Restart Zabbix Agent:
+sudo systemctl restart zabbix-agent
 
-1. Copy the scripts to `/etc/zabbix/scripts/` and make them executable:
+| Key                   | Type | Description                       |
+| --------------------- | ---- | --------------------------------- |
+| `battery.percentage`  | uint | Battery charge level (%)          |
+| `cpu.temp`            | uint | CPU temperature (°C)              |
+| `fan.speed`           | uint | Fan rotation speed (RPM)          |
+| `power.supply.status` | uint | Power supply status (1=AC, 0=Bat) |
+
+
+📌 Requirements
+Zabbix Agent 5.0+
+Installed packages:
+acpi
+lm-sensors
+
+
